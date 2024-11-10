@@ -1,31 +1,45 @@
-miasta = []
+import csv
 
-# Skrócona lista polskich miast. Wersja pełna powinna zawierać 1013 miast.
-myCsv = "C:\\Users\\Oliwia\\Downloads\\woj\\woj\\wojewodztwa_miasta.csv"
-with open(myCsv, 'r', encoding='utf-8') as f:    
-    for line in f:  
-        mojalista = line.split(";")
-        miasta.append(mojalista[1])
-print(len(miasta))
-# Funkcja podpowiadająca miasto na podstawie prefiksu
-def podpowiedz_miasta(prefix, lista_miast):
-    # Wyszukujemy miasta zaczynające się na podane litery (prefix)
-    sugestie = []
-    for miasto in lista_miast:
-        if miasto.lower().startswith(prefix.lower()):
-            sugestie.append(miasto)
-    #sugestie = [miasto for miasto in lista_miast if miasto.lower().startswith(prefix.lower())]
-    return sugestie  # Zwraca maksymalnie 3 sugestie
+def load_cities(file_path):
+    cities = []
+    try:
+        with open(file_path, mode='r', encoding='utf-8') as file:
+            reader = csv.reader(file)
+            for row in reader:
+                # Assuming that each row contains only the city name
+                if row:  # Check to avoid empty rows
+                    cities.append(row[0].strip())
+    except FileNotFoundError:
+        print("Plik nie został znaleziony. Sprawdź ścieżkę do pliku.")
+    return cities
 
-# Główna część programu
-prefix = input("Wpisz pierwsze 3 litery miasta: ").strip()
+def suggest_cities(prefix, city_list):
+    prefix = prefix.lower()
+    suggestions = [city for city in city_list if city.lower().startswith(prefix)]
+    return suggestions[:3]  # Return up to the first 3 suggestions
 
-if len(prefix) >= 3:
-    sugestie = podpowiedz_miasta(prefix, miasta)
-    if sugestie:
-        print("Podpowiedzi miast:", ", ".join(sugestie))
-    else:
-        print("Brak miast pasujących do podanego prefiksu.")
-else:
-    print("Wprowadź co najmniej 3 litery.")
+def main():
+    file_path = 'polish_cities.csv'  # Adjust the file path as needed
+    cities = load_cities(file_path)
     
+    if not cities:
+        print("Brak danych miast do przetwarzania.")
+        return
+
+    while True:
+        user_input = input("Wpisz pierwsze 3 litery nazwy miasta (lub 'q' aby zakończyć): ").strip()
+        if user_input.lower() == 'q':
+            print("Koniec programu.")
+            break
+        elif len(user_input) < 3:
+            print("Proszę wpisać co najmniej 3 litery.")
+            continue
+        
+        suggestions = suggest_cities(user_input, cities)
+        if suggestions:
+            print("Sugerowane miasta:", ", ".join(suggestions))
+        else:
+            print("Brak sugestii dla podanego prefiksu.")
+
+if __name__ == "__main__":
+    main()
