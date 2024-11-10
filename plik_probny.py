@@ -28,3 +28,4 @@ if len(prefix) >= 3:
         print("Brak miast pasujących do podanego prefiksu.")
 else:
     print("Wprowadź co najmniej 3 litery.")
+    
